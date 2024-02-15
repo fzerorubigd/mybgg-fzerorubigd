@@ -2,7 +2,7 @@ name: Update Algolia index with BGG data
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '0 0 * * *' # Runs every day
   workflow_dispatch:
 jobs:
   index:
@@ -30,5 +30,16 @@ jobs:
       env:
         APIKEY: ${{secrets.APIKEY}}
       if: env.APIKEY != null
+      shell: bash
       run: |
-        python scripts/download_and_index.py --apikey ${{env.APIKEY}} --debug
+        if python scripts/download_and_index.py --apikey ${{env.APIKEY}} --debug; then
+          echo "Done!"
+        else
+          sleep 10
+          python scripts/download_and_index.py --apikey ${{env.APIKEY}} --debug
+          echo "Done, second try"
+        fi
+        
+ 
+
+
